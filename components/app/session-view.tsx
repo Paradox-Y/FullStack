@@ -122,9 +122,23 @@ export const SessionView = ({
         )}
         <div className="bg-background relative mx-auto max-w-2xl pb-3 md:pb-12">
           <Fade bottom className="absolute inset-x-0 top-0 h-4 -translate-y-full" />
-          <AgentControlBar controls={controls} onChatOpenChange={setChatOpen} />
+          <AgentControlBar
+            controls={controls}
+            onChatOpenChange={setChatOpen}
+            onDisconnect={() => {
+              // Send transcript to n8n webhook on disconnect
+              if (messages.length > 0) {
+                fetch(process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL || '', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ transcript: messages }),
+                }).catch(console.error);
+              }
+            }}
+          />
         </div>
       </MotionBottom>
     </section>
   );
 };
+//<AgentControlBar controls={controls} onChatOpenChange={setChatOpen} /> in line 125 instead of 125-139
